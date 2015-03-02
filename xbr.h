@@ -21,6 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifndef __LIBXBR_XBR_H_INCLUDED
+#define __LIBXBR_XBR_H_INCLUDED
+
 #include <stdint.h>
 
 
@@ -57,5 +60,7 @@ XBR_EXPORT void xbr_init_data(xbr_data *data);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
