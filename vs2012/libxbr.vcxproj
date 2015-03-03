@@ -64,10 +64,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\xbr.h" />
+    <ClCompile Include="..\hq2x.c" />
+    <ClCompile Include="..\hq3x.c" />
+    <ClCompile Include="..\hq4x.c" />
+    <ClCompile Include="..\xbr.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\xbr.c" />
+    <ClInclude Include="..\filters.h" />
+    <ClInclude Include="..\internal_hqx_common.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

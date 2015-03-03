@@ -1,4 +1,4 @@
-#include "xbr.h"
+#include "filters.h"
 #include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,23 +14,31 @@ int main(int argc, char **argv) {
 	png_bytep *rowPointers;
 	uint8_t *inBuffer, *outBuffer;
 	int width, height;
-	int scaleMode;
+	int scaleType, scaleFactor;
 	int i;
 	xbr_data *xbrData;
 	xbr_params xbrParams;
 
 	if (argc != 4) {
-		printf("Usage: %s [input.png] [output.png] [2|3|4]\n", argv[0]);
+		printf("Usage: %s [input.png] [output.png] [xbr2x|xbr3x|xbr4x|hq2x|hq3x|hq4x]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
-	switch (argv[3][0]) {
-		case '2': scaleMode = 2; break;
-		case '3': scaleMode = 3; break;
-		case '4': scaleMode = 4; break;
-		default:
-				  printf("Unrecognised scale mode\n");
-				  return EXIT_FAILURE;
+	if (strcmp(argv[3], "xbr2x") == 0) {
+		scaleType = 1; scaleFactor = 2;
+	} else if (strcmp(argv[3], "xbr3x") == 0) {
+		scaleType = 1; scaleFactor = 3;
+	} else if (strcmp(argv[3], "xbr4x") == 0) {
+		scaleType = 1; scaleFactor = 4;
+	} else if (strcmp(argv[3], "hq2x") == 0) {
+		scaleType = 2; scaleFactor = 2;
+	} else if (strcmp(argv[3], "hq3x") == 0) {
+		scaleType = 2; scaleFactor = 3;
+	} else if (strcmp(argv[3], "hq4x") == 0) {
+		scaleType = 2; scaleFactor = 4;
+	} else {
+		printf("Unrecognised scale mode\n");
+		return EXIT_FAILURE;
 	}
 
 
@@ -88,7 +96,7 @@ int main(int argc, char **argv) {
 
 
 	/* CONVERT IT! */
-	outBuffer = malloc(width * scaleMode * height * scaleMode * 4);
+	outBuffer = malloc(width * scaleFactor * height * scaleFactor * 4);
 
 	xbrData = malloc(sizeof(xbr_data));
 	xbr_init_data(xbrData);
@@ -99,12 +107,20 @@ int main(int argc, char **argv) {
 	xbrParams.inWidth = width;
 	xbrParams.inHeight = height;
 	xbrParams.inPitch = width * 4;
-	xbrParams.outPitch = width * scaleMode * 4;
+	xbrParams.outPitch = width * scaleFactor * 4;
 
-	switch (scaleMode) {
-		case 2: xbr_filter_2x(&xbrParams); break;
-		case 3: xbr_filter_3x(&xbrParams); break;
-		case 4: xbr_filter_4x(&xbrParams); break;
+	if (scaleType == 1) {
+		switch (scaleFactor) {
+			case 2: xbr_filter_xbr2x(&xbrParams); break;
+			case 3: xbr_filter_xbr3x(&xbrParams); break;
+			case 4: xbr_filter_xbr4x(&xbrParams); break;
+		}
+	} else if (scaleType == 2) {
+		switch (scaleFactor) {
+			case 2: xbr_filter_hq2x(&xbrParams); break;
+			case 3: xbr_filter_hq3x(&xbrParams); break;
+			case 4: xbr_filter_hq4x(&xbrParams); break;
+		}
 	}
 
 
@@ -135,11 +151,11 @@ int main(int argc, char **argv) {
 	}
 
 	png_init_io(png, fp);
-	png_set_IHDR(png, info, width*scaleMode, height*scaleMode, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(png, info, width*scaleFactor, height*scaleFactor, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-	rowPointers = malloc(sizeof(png_bytep) * height * scaleMode);
-	for (i = 0; i < (height * scaleMode); i++) {
-		rowPointers[i] = outBuffer + (i * width * scaleMode * 4);
+	rowPointers = malloc(sizeof(png_bytep) * height * scaleFactor);
+	for (i = 0; i < (height * scaleFactor); i++) {
+		rowPointers[i] = outBuffer + (i * width * scaleFactor * 4);
 	}
 
 	png_set_rows(png, info, rowPointers);

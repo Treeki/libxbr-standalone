@@ -30,7 +30,8 @@
  * @see https://github.com/yoyofr/iFBA/blob/master/fba_src/src/intf/video/scalers/xbr.cpp
  */
 
-#include "xbr.h"
+#define XBR_INTERNAL
+#include "filters.h"
 #include <stdlib.h>
 
 #define LB_MASK       0x00FEFEFE
@@ -291,7 +292,7 @@ static XBR_INLINE void xbr_filter(const xbr_params *params, int n)
 }
 
 #define XBR_FUNC(size) \
-void xbr_filter_##size##x(const xbr_params *params) \
+void xbr_filter_xbr##size##x(const xbr_params *params) \
 { \
     xbr_filter(params, size); \
 }
